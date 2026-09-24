@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>字字小學堂</title>
+  <style>
+    :root {
+      font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      color: #314254;
+      background: #f8fbf6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 8% 30%, #daebc759 0 2px, transparent 3px),
+        radial-gradient(circle at 93% 70%, #f7c9834d 0 2px, transparent 3px),
+        #f8fbf6;
+      background-size: 48px 48px, 57px 57px, auto;
+    }
+    button { font: inherit; cursor: pointer; }
+    button:focus-visible { outline: 4px solid #e6843847; outline-offset: 3px; }
+    .page { display: flex; min-height: 100vh; flex-direction: column; }
+    header {
+      height: 92px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 max(28px, calc((100vw - 1080px) / 2));
+      border-bottom: 1px solid #e4e9df;
+      background: #ffffffe8;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark {
+      width: 51px; height: 51px; display: grid; place-items: center;
+      border-radius: 16px; color: white; background: #e9823d;
+      box-shadow: 0 5px 0 #c85f24; font-size: 27px; font-weight: 800;
+      transform: rotate(-3deg);
+    }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-text strong { letter-spacing: .08em; font-size: 21px; }
+    .brand-text small { color: #86917f; font-size: 12px; letter-spacing: .15em; }
+    .today, .counter {
+      border: 1px solid #f0dcbe; border-radius: 999px; padding: 9px 15px;
+      color: #86633e; background: #fffaf0; font-weight: 600; font-size: 13px;
+    }
+    main { width: min(calc(100% - 40px), 970px); margin: 0 auto; flex: 1; }
+    .mode-switcher {
+      width: min(100%, 590px); display: grid; grid-template-columns: 1fr 1fr;
+      gap: 7px; margin: 28px auto 36px; padding: 6px;
+      border: 1px solid #e0e6dc; border-radius: 20px; background: #f0f3ed;
+    }
+    .mode {
+      min-height: 68px; display: flex; align-items: center; justify-content: center;
+      gap: 11px; border: 0; border-radius: 15px; color: #899388;
+      background: transparent; transition: .16s;
+    }
+    .mode.active { color: #355846; background: white; box-shadow: 0 4px 14px #38493e17; }
+    .mode-icon {
+      width: 39px; height: 39px; display: grid; place-items: center;
+      border-radius: 12px; font-size: 25px;
+    }
+    .mode:first-child .mode-icon { color: #5b856d; background: #e3f0e5; }
+    .mode:last-child .mode-icon { color: #d27938; background: #fae9d6; }
+    .mode-label { display: flex; flex-direction: column; align-items: flex-start; }
+    .mode-label strong { font-size: 16px; letter-spacing: .06em; }
+    .mode-label small { font-size: 11px; }
+    .heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 20px; }
+    .eyebrow {
+      display: flex; align-items: center; gap: 8px; color: #719174;
+      font-size: 12px; font-weight: 700; letter-spacing: .17em;
+    }
+    .eyebrow i {
+      width: 7px; height: 7px; border-radius: 50%; background: #7ca27f;
+      box-shadow: 0 0 0 5px #e6f0e3;
+    }
+    h1 { margin: 8px 0 0; color: #293d4d; font-size: clamp(24px, 3vw, 32px); letter-spacing: .07em; }
+    .learning-card {
+      min-height: 365px; display: grid; grid-template-columns: 1.05fr 1fr;
+      overflow: hidden; border: 1px solid #e1e5dd; border-radius: 28px;
+      background: white; box-shadow: 0 17px 40px #47544614;
+    }
+    .picture-panel {
+      position: relative; display: grid; place-items: center;
+      background: radial-gradient(circle, #ffffff6b 0 39%, transparent 40%), var(--color);
+    }
+    .picture {
+      filter: drop-shadow(0 14px 5px #464c3324);
+      font-size: clamp(110px, 15vw, 165px); line-height: 1;
+      transform: rotate(-3deg); transition: .2s;
+    }
+    .picture-panel:hover .picture { transform: rotate(2deg) scale(1.05); }
+    .picture-label {
+      position: absolute; bottom: 21px; padding: 5px 13px; border-radius: 999px;
+      color: #414a3aad; background: #ffffff99; font-size: 11px; font-weight: 600;
+      letter-spacing: .14em;
+    }
+    .word-panel {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 38px;
+    }
+    .prompt { color: #9a9d95; font-size: 12px; font-weight: 600; letter-spacing: .17em; }
+    .word-with-bopomofo { display: flex; align-items: center; gap: 30px; margin: 28px 0 35px; }
+    .annotated { display: flex; align-items: center; gap: 8px; }
+    .hanzi { color: #2e4250; font-size: clamp(63px, 8vw, 88px); font-weight: 700; line-height: 1; }
+    .bopomofo {
+      max-width: 22px; color: #e47b3b; font-size: 18px; font-weight: 600;
+      line-height: 1.12; word-break: break-all; text-align: center;
+    }
+    .listen {
+      display: flex; align-items: center; gap: 8px; padding: 9px 19px;
+      border: 1px solid #dfe7da; border-radius: 999px; color: #63806c;
+      background: #f5f9f3; font-size: 13px; font-weight: 600;
+    }
+    .actions { display: flex; align-items: center; justify-content: space-between; padding: 24px 8px 10px; }
+    .actions p { margin: 0; color: #949d90; font-size: 12px; }
+    .primary {
+      display: flex; align-items: center; gap: 16px; padding: 13px 23px;
+      border: 0; border-radius: 14px; color: white; background: #e77e3b;
+      box-shadow: 0 5px 0 #c9662d; font-size: 14px; font-weight: 700;
+      letter-spacing: .07em;
+    }
+    .primary:hover { transform: translateY(-2px); }
+    .score {
+      padding: 10px 16px; border: 1px solid #f2ddb6; border-radius: 13px;
+      color: #a3692f; background: #fffaf0; font-weight: 700;
+    }
+    .progress-row { display: flex; align-items: center; gap: 18px; margin: -6px 0 20px; color: #99a19a; font-size: 12px; }
+    .progress { height: 7px; flex: 1; overflow: hidden; border-radius: 99px; background: #e8ece6; }
+    .progress i { display: block; height: 100%; border-radius: inherit; background: #e58a48; transition: width .25s; }
+    .quiz-card, .result-card {
+      padding: 35px; border: 1px solid #e1e6de; border-radius: 28px;
+      background: white; box-shadow: 0 17px 40px #47544612; text-align: center;
+    }
+    .question {
+      width: 150px; height: 150px; display: grid; place-items: center;
+      margin: 0 auto; border: 3px dashed #ebbb8e; border-radius: 33px;
+      color: #2f4554; background: #fff8ed; font-size: 90px; font-weight: 700;
+    }
+    .question-text { margin: 17px 0 24px; color: #858f89; font-size: 14px; }
+    .answers { width: min(100%, 680px); display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin: auto; }
+    .answer {
+      position: relative; min-height: 68px; border: 2px solid #e4e8e2;
+      border-radius: 16px; color: #455966; background: white;
+      font-size: 22px; font-weight: 600;
+    }
+    .answer:hover:not(:disabled) { border-color: #ecab76; background: #fffaf4; transform: translateY(-2px); }
+    .answer span {
+      position: absolute; left: 15px; width: 31px; height: 31px;
+      display: grid; place-items: center; border-radius: 9px;
+      color: #7c887f; background: #f0f3ef; font-size: 13px;
+    }
+    .answer b { position: absolute; right: 17px; }
+    .answer.correct { border-color: #74aa7f; color: #4e7959; background: #edf8ed; }
+    .answer.wrong { border-color: #e38a7a; color: #a24d42; background: #fff1ef; }
+    .feedback { width: min(100%, 680px); margin: 17px auto 0; padding: 11px; border-radius: 12px; font-size: 13px; font-weight: 700; }
+    .feedback.good { color: #4f7b59; background: #edf7ec; }
+    .feedback.bad { color: #9d5d4f; background: #fff2eb; }
+    .next-question { margin: 18px auto 0; }
+    .tip { margin-top: 20px; color: #a0a89f; font-size: 11px; }
+    .result-card { max-width: 700px; margin: 20px auto; padding: 60px 30px; }
+    .result-emoji { font-size: 76px; }
+    .result-card strong { color: #df7838; font-size: 31px; }
+    .result-card .primary { margin: 25px auto 0; }
+    footer { margin-top: 56px; padding: 24px; border-top: 1px solid #e5eae2; color: #9ba69a; text-align: center; font-size: 11px; letter-spacing: .12em; }
+    @media (max-width: 700px) {
+      header { height: 78px; padding: 0 19px; }
+      .today { display: none; }
+      main { width: min(calc(100% - 28px), 970px); }
+      .mode-switcher { margin: 20px auto 27px; }
+      .mode-label small { display: none; }
+      .learning-card { grid-template-columns: 1fr; }
+      .picture-panel { min-height: 245px; }
+      .picture { font-size: 115px; }
+      .word-panel { padding: 30px 20px; }
+      .actions { flex-direction: column; gap: 18px; }
+      .answers { grid-template-columns: 1fr; }
+      .quiz-card { padding: 26px 15px; }
+      .question { width: 125px; height: 125px; font-size: 75px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    const words = [
+      { word: "太陽", bopomofo: ["ㄊㄞˋ", "ㄧㄤˊ"], emoji: "☀️", label: "天空中暖暖的太陽", color: "#FFE29A" },
+      { word: "月亮", bopomofo: ["ㄩㄝˋ", "ㄌㄧㄤˋ"], emoji: "🌙", label: "夜空中的月亮", color: "#C9D8FF" },
+      { word: "小狗", bopomofo: ["ㄒㄧㄠˇ", "ㄍㄡˇ"], emoji: "🐶", label: "可愛的小狗", color: "#FFD2B8" },
+      { word: "小貓", bopomofo: ["ㄒㄧㄠˇ", "ㄇㄠ"], emoji: "🐱", label: "可愛的小貓", color: "#F8CDE0" },
+      { word: "花朵", bopomofo: ["ㄏㄨㄚ", "ㄉㄨㄛˇ"], emoji: "🌼", label: "黃色的小花朵", color: "#FFF0A8" },
+      { word: "雨傘", bopomofo: ["ㄩˇ", "ㄙㄢˇ"], emoji: "☂️", label: "下雨天的雨傘", color: "#BFE5F6" },
+      { word: "蘋果", bopomofo: ["ㄆㄧㄥˊ", "ㄍㄨㄛˇ"], emoji: "🍎", label: "紅通通的蘋果", color: "#FFC6BA" },
+      { word: "西瓜", bopomofo: ["ㄒㄧ", "ㄍㄨㄚ"], emoji: "🍉", label: "清涼的西瓜", color: "#CBE9BA" },
+      { word: "蝴蝶", bopomofo: ["ㄏㄨˊ", "ㄉㄧㄝˊ"], emoji: "🦋", label: "飛舞的蝴蝶", color: "#D9C7FA" },
+      { word: "火車", bopomofo: ["ㄏㄨㄛˇ", "ㄔㄜ"], emoji: "🚂", label: "向前開的火車", color: "#C8E4EF" },
+      { word: "學校", bopomofo: ["ㄒㄩㄝˊ", "ㄒㄧㄠˋ"], emoji: "🏫", label: "每天上課的學校", color: "#FFD5A5" },
+      { word: "朋友", bopomofo: ["ㄆㄥˊ", "ㄧㄡˇ"], emoji: "🧒🏻🧒🏻", label: "一起玩的好朋友", color: "#D4EBC3" }
+    ];
+    const quizItems = [
+      { character: "山", answer: "ㄕㄢ", options: ["ㄕㄢ", "ㄙㄢ", "ㄔㄢ", "ㄓㄢ"] },
+      { character: "水", answer: "ㄕㄨㄟˇ", options: ["ㄕㄨㄟˇ", "ㄙㄨㄟˇ", "ㄕㄨㄞˇ", "ㄔㄨㄟˇ"] },
+      { character: "大", answer: "ㄉㄚˋ", options: ["ㄊㄚˋ", "ㄉㄞˋ", "ㄉㄚˋ", "ㄉㄜ˙"] },
+      { character: "天", answer: "ㄊㄧㄢ", options: ["ㄉㄧㄢ", "ㄊㄧㄣ", "ㄊㄧㄢ", "ㄑㄧㄢ"] },
+      { character: "手", answer: "ㄕㄡˇ", options: ["ㄙㄡˇ", "ㄕㄠˇ", "ㄕㄡˇ", "ㄔㄡˇ"] },
+      { character: "魚", answer: "ㄩˊ", options: ["ㄨˊ", "ㄩˇ", "ㄩˊ", "ㄧㄩˊ"] },
+      { character: "鳥", answer: "ㄋㄧㄠˇ", options: ["ㄌㄧㄠˇ", "ㄋㄧㄡˇ", "ㄋㄧㄠˇ", "ㄇㄧㄠˇ"] },
+      { character: "車", answer: "ㄔㄜ", options: ["ㄘㄜ", "ㄔㄜ", "ㄓㄜ", "ㄔㄟ"] },
+      { character: "火", answer: "ㄏㄨㄛˇ", options: ["ㄏㄨㄛˇ", "ㄈㄨㄛˇ", "ㄏㄨㄚˇ", "ㄏㄜˇ"] },
+      { character: "花", answer: "ㄏㄨㄚ", options: ["ㄏㄨㄛ", "ㄈㄚ", "ㄏㄨㄚ", "ㄏㄨㄞ"] }
+    ];
+
+    let mode = "learn";
+    let currentWord = Math.floor(Math.random() * words.length);
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedAnswer = null;
+    let quizOrder = [];
+    const app = document.querySelector("#app");
+    const shuffle = items => [...items].sort(() => Math.random() - 0.5);
+
+    function resetQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      selectedAnswer = null;
+      quizOrder = shuffle(quizItems).slice(0, 5).map(item => ({ ...item, options: shuffle(item.options) }));
+    }
+
+    function wordMarkup(word) {
+      return [...word.word].map((character, index) => `
+        <span class="annotated">
+          <span class="hanzi">${character}</span>
+          <span class="bopomofo">${word.bopomofo[index]}</span>
+        </span>`).join("");
+    }
+
+    function learningView() {
+      const word = words[currentWord];
+      return `
+        <section class="heading">
+          <div><span class="eyebrow"><i></i>今天的詞語</span><h1>看看圖片，跟著讀一讀！</h1></div>
+          <span class="counter">詞語 ${currentWord + 1} / ${words.length}</span>
+        </section>
+        <section class="learning-card">
+          <div class="picture-panel" style="--color:${word.color}">
+            <div class="picture" role="img" aria-label="${word.label}">${word.emoji}</div>
+            <span class="picture-label">看圖想一想</span>
+          </div>
+          <div class="word-panel">
+            <span class="prompt">這個詞語怎麼念？</span>
+            <div class="word-with-bopomofo">${wordMarkup(word)}</div>
+            <button class="listen" id="listen">🔊 聽聽看</button>
+          </div>
+        </section>
+        <div class="actions">
+          <p>💡 小提示：先看圖片，再大聲念出來！</p>
+          <button class="primary" id="next-word">換一個詞語 <span>→</span></button>
+        </div>`;
+    }
+
+    function quizView() {
+      if (currentQuestion >= quizOrder.length) {
+        const perfect = score === 100;
+        return `<section class="result-card">
+          <div class="result-emoji">${perfect ? "🏆" : "🌟"}</div>
+          <h1>${perfect ? "全部答對，太棒了！" : "完成挑戰，很不錯！"}</h1>
+          <p>你得到 <strong>${score} 分</strong></p>
+          <button class="primary" id="restart">再考一次 ↻</button>
+        </section>`;
+      }
+      const item = quizOrder[currentQuestion];
+      const answered = selectedAnswer !== null;
+      return `
+        <section class="heading">
+          <div><span class="eyebrow"><i></i>注音小測驗</span><h1>選出這個字的正確注音</h1></div>
+          <div class="score">⭐ ${score} 分</div>
+        </section>
+        <div class="progress-row">
+          <span>第 ${currentQuestion + 1} 題，共 ${quizOrder.length} 題</span>
+          <div class="progress"><i style="width:${((currentQuestion + (answered ? 1 : 0)) / quizOrder.length) * 100}%"></i></div>
+        </div>
+        <section class="quiz-card">
+          <div class="question">${item.character}</div>
+          <p class="question-text">請選出「${item.character}」的正確注音</p>
+          <div class="answers">
+            ${item.options.map((option, index) => {
+              let state = "";
+              if (answered && option === item.answer) state = "correct";
+              else if (answered && option === selectedAnswer) state = "wrong";
+              return `<button class="answer ${state}" data-answer="${option}" ${answered ? "disabled" : ""}>
+                <span>${String.fromCharCode(65 + index)}</span>${option}
+                ${state === "correct" ? "<b>✓</b>" : state === "wrong" ? "<b>×</b>" : ""}
+              </button>`;
+            }).join("")}
+          </div>
+          ${answered ? `
+            <div class="feedback ${selectedAnswer === item.answer ? "good" : "bad"}">
+              ${selectedAnswer === item.answer ? "🎉 答對了，真厲害！" : `再記一下：正確答案是 ${item.answer}`}
+            </div>
+            <button class="primary next-question" id="next-question">下一題 →</button>`
+            : `<div class="tip">仔細看、慢慢想，你一定可以！</div>`}
+        </section>`;
+    }
+
+    function render() {
+      app.innerHTML = `<div class="page">
+        <header>
+          <div class="brand"><span class="brand-mark">字</span><span class="brand-text"><strong>字字小學堂</strong><small>快樂認識每個字</small></span></div>
+          <div class="today">⭐ 今天也要加油！</div>
+        </header>
+        <main>
+          <div class="mode-switcher">
+            <button class="mode ${mode === "learn" ? "active" : ""}" data-mode="learn"><span class="mode-icon">▤</span><span class="mode-label"><strong>學習模式</strong><small>看圖片・讀詞語</small></span></button>
+            <button class="mode ${mode === "quiz" ? "active" : ""}" data-mode="quiz"><span class="mode-icon">✎</span><span class="mode-label"><strong>考試模式</strong><small>選出正確注音</small></span></button>
+          </div>
+          ${mode === "learn" ? learningView() : quizView()}
+        </main>
+        <footer>每天學一點，國字進步看得見！ 🌱</footer>
+      </div>`;
+      bindEvents();
+    }
+
+    function bindEvents() {
+      document.querySelectorAll("[data-mode]").forEach(button => button.addEventListener("click", () => {
+        mode = button.dataset.mode;
+        render();
+      }));
+      document.querySelector("#next-word")?.addEventListener("click", () => {
+        let next = currentWord;
+        while (next === currentWord) next = Math.floor(Math.random() * words.length);
+        currentWord = next;
+        render();
+      });
+      document.querySelector("#listen")?.addEventListener("click", () => {
+        const voice = new SpeechSynthesisUtterance(words[currentWord].word);
+        voice.lang = "zh-TW";
+        voice.rate = 0.75;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(voice);
+      });
+      document.querySelectorAll("[data-answer]").forEach(button => button.addEventListener("click", () => {
+        selectedAnswer = button.dataset.answer;
+        if (selectedAnswer === quizOrder[currentQuestion].answer) score += 20;
+        render();
+      }));
+      document.querySelector("#next-question")?.addEventListener("click", () => {
+        currentQuestion++;
+        selectedAnswer = null;
+        render();
+      });
+      document.querySelector("#restart")?.addEventListener("click", () => {
+        resetQuiz();
+        render();
+      });
+    }
+
+    resetQuiz();
+    render();
+  </script>
+</body>
+</html>
